@@ -51,5 +51,6 @@ public class BeerOrderLineDto {
     private BeerStyleEnum beerStyle;
     private UUID beerId;
     private Integer orderQuantity = 0;
+    private Integer quantityAllocated;
     private BigDecimal price;
 }
