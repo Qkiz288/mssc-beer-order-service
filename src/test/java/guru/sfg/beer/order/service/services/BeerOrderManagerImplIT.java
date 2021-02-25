@@ -69,15 +69,19 @@ public class BeerOrderManagerImplIT {
     }
 
     @Test
-    public void testNewToAllocated() throws JsonProcessingException {
-        BeerDto beerDto = BeerDto.builder().id(beerId).upc("1234").build();
+    public void testNewToAllocated() throws JsonProcessingException, InterruptedException {
+        BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
 
-        wireMockServer.stubFor(get(BeerServiceRestTemplateImpl.BEER_UPC_PATH_V1 + "1234")
+        wireMockServer.stubFor(get(BeerServiceRestTemplateImpl.BEER_UPC_PATH_V1 + "12345")
             .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
+
+        Thread.sleep(5000);
+
+        savedBeerOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
 
         assertNotNull(savedBeerOrder);
         assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder.getOrderStatus());
@@ -91,7 +95,7 @@ public class BeerOrderManagerImplIT {
         Set<BeerOrderLine> lines = new HashSet<>();
         lines.add(BeerOrderLine.builder()
                 .beerId(beerId)
-                .upc("1234")
+                .upc("12345")
                 .orderQuantity(1)
                 .beerOrder(beerOrder)
                 .build());
