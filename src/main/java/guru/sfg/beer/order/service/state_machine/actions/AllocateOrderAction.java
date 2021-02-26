@@ -1,5 +1,6 @@
 package guru.sfg.beer.order.service.state_machine.actions;
 
+import com.kkukielka.brewery.model.events.AllocateOrderRequest;
 import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
@@ -32,8 +33,9 @@ public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_QUEUE,
-                beerOrderMapper.beerOrderToDto(beerOrder)),
-                () -> log.error(String.format("Order with ID = %s not found", beerOrderId)));
+                AllocateOrderRequest.builder()
+                        .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
+                        .build()), () -> log.error(String.format("Order with ID = %s not found", beerOrderId)));
 
         log.debug(String.format("Sent Allocation Request for order id: %s", beerOrderId));
     }

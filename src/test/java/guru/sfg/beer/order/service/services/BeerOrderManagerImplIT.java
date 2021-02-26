@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -80,10 +81,10 @@ public class BeerOrderManagerImplIT {
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
-        await().untilAsserted(() -> {
+        await().atMost(15, TimeUnit.SECONDS).untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
 
-            assertEquals(BeerOrderStatusEnum.ALLOCATION_PENDING, foundOrder.getOrderStatus());
+            assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
         });
 
         savedBeerOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
