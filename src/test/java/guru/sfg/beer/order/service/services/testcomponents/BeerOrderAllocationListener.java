@@ -17,17 +17,35 @@ public class BeerOrderAllocationListener {
 
     @JmsListener(destination = JmsConfig.ALLOCATE_ORDER_QUEUE)
     public void listen(Message message) {
-        AllocateOrderRequest request = (AllocateOrderRequest) message.getPayload();
-
         System.out.println("Running Test Component: BeerOrderAllocationListener");
 
-        request.getBeerOrderDto().getBeerOrderLines().forEach(orderLine ->
-            orderLine.setQuantityAllocated(orderLine.getOrderQuantity()));
+        AllocateOrderRequest request = (AllocateOrderRequest) message.getPayload();
+        boolean pendingInventory = false;
+        boolean allocationError = false;
+
+        if (request.getBeerOrderDto().getCustomerRef() != null &&
+                request.getBeerOrderDto().getCustomerRef().equals("partial-allocation")) {
+            pendingInventory = true;
+        }
+
+        if (request.getBeerOrderDto().getCustomerRef() != null &&
+                request.getBeerOrderDto().getCustomerRef().equals("fail-allocation")) {
+            allocationError = true;
+        }
+
+        boolean finalPendingInventory = pendingInventory;
+        request.getBeerOrderDto().getBeerOrderLines().forEach(beerOrderLineDto -> {
+            if (finalPendingInventory) {
+                beerOrderLineDto.setQuantityAllocated(beerOrderLineDto.getOrderQuantity() - 1);
+            } else {
+                beerOrderLineDto.setQuantityAllocated(beerOrderLineDto.getOrderQuantity());
+            }
+        });
 
         jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_RESPONSE_QUEUE,
                 AllocateOrderResult.builder()
-                        .allocationError(false)
-                        .pendingInventory(false)
+                        .allocationError(allocationError)
+                        .pendingInventory(pendingInventory)
                         .beerOrderDto(request.getBeerOrderDto())
                         .build());
     }
