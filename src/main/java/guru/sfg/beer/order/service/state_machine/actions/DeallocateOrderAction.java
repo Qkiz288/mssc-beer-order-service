@@ -1,6 +1,5 @@
 package guru.sfg.beer.order.service.state_machine.actions;
 
-import com.kkukielka.brewery.model.events.AllocateOrderRequest;
 import com.kkukielka.brewery.model.events.DeallocateOrderRequest;
 import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
@@ -25,7 +24,7 @@ import java.util.UUID;
 public class DeallocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrderEventEnum> {
     private final BeerOrderRepository beerOrderRepository;
     private final JmsTemplate jmsTemplate;
-    private BeerOrderMapper beerOrderMapper;
+    private final BeerOrderMapper beerOrderMapper;
 
     @Override
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum> stateContext) {

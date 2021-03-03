@@ -260,7 +260,6 @@ public class BeerOrderManagerImplIT {
                 .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
-        beerOrder.setCustomerRef("dont-allocate");
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
