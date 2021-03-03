@@ -15,8 +15,8 @@ public class BeerServiceRestTemplateImpl implements  BeerService {
 
     private RestTemplate restTemplate;
     private String beerServiceHost;
-    private static final String BEER_PATH_V1 = "/api/v1/beer/";
-    private static final String BEER_UPC_PATH_V1 = "/api/v1/beerUpc/";
+    public static final String BEER_PATH_V1 = "/api/v1/beer/";
+    public static final String BEER_UPC_PATH_V1 = "/api/v1/beerUpc/";
 
     public void setBeerServiceHost(String beerServiceHost) {
         this.beerServiceHost = beerServiceHost;

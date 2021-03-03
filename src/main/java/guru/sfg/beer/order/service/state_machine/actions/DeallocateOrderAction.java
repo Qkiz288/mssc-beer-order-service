@@ -1,6 +1,6 @@
 package guru.sfg.beer.order.service.state_machine.actions;
 
-import com.kkukielka.brewery.model.events.AllocateOrderRequest;
+import com.kkukielka.brewery.model.events.DeallocateOrderRequest;
 import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
@@ -19,12 +19,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrderEventEnum> {
-
-    private final JmsTemplate jmsTemplate;
+@Component
+public class DeallocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrderEventEnum> {
     private final BeerOrderRepository beerOrderRepository;
+    private final JmsTemplate jmsTemplate;
     private final BeerOrderMapper beerOrderMapper;
 
     @Override
@@ -32,11 +31,12 @@ public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
         String beerOrderId = (String) stateContext.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER);
         Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(UUID.fromString(beerOrderId));
 
-        beerOrderOptional.ifPresentOrElse(beerOrder -> jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_QUEUE,
-                AllocateOrderRequest.builder()
-                        .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
-                        .build()), () -> log.error(String.format("Order with ID = %s not found", beerOrderId)));
-
-        log.debug(String.format("Sent Allocation Request for order id: %s", beerOrderId));
+        beerOrderOptional.ifPresentOrElse(beerOrder -> {
+                    jmsTemplate.convertAndSend(JmsConfig.DEALLOCATE_ORDER_QUEUE,
+                            DeallocateOrderRequest.builder()
+                                    .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
+                                    .build());
+                    log.debug(String.format("Sent Deallocation Request for order id: %s", beerOrderId));
+                }, () -> log.error(String.format("Order with ID = %s not found", beerOrderId)));
     }
 }
