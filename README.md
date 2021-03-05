@@ -6,4 +6,6 @@ Forked from [springframeworkguru / mssc-beer-order-service](https://github.com/s
 
 In order to run the application with local MySQL DB:
  - MySQL service has to be installed locally.
- - When running the main class, in `Edit Configuration / VM Options` add `-Dspring.profiles.active=localmysql` profile. 
+ - When running the main class, in `Edit Configuration / VM Options` add `-Dspring.profiles.active=localmysql` profile.
+ 
+ To register service in local Eureka, `local-discovery` profile has to be set 
