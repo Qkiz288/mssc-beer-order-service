@@ -120,7 +120,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             } else {
                 sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_FAILED);
             }
-        }, () -> log.error(String.format("Order with ID = %s not found", beerOrderId)));
+        }, () -> log.error(String.format("Order with ID = %s not found during processValidationResult", beerOrderId)));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_SUCCESS);
             awaitForStatus(beerOrder.getId(), BeerOrderStatusEnum.ALLOCATED);
             updateAllocatedQty(beerOrderDto);
-        }, () -> log.error(String.format("Order with ID = %s not found", beerOrderDto.getId())));
+        }, () -> log.error(String.format("Order with ID = %s not found during beerOrderAllocationPassed", beerOrderDto.getId())));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_NO_INVENTORY);
             awaitForStatus(beerOrder.getId(), BeerOrderStatusEnum.PENDING_INVENTORY);
             updateAllocatedQty(beerOrderDto);
-        }, () -> log.error(String.format("Order with ID = %s not found", beerOrderDto.getId())));
+        }, () -> log.error(String.format("Order with ID = %s not found during beerOrderAllocationPendingInventory", beerOrderDto.getId())));
     }
 
     private void updateAllocatedQty(BeerOrderDto beerOrderDto) {
@@ -158,7 +158,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             });
 
             beerOrderRepository.saveAndFlush(allocatedOrder);
-        }, () -> log.error(String.format("Order with ID = %s not found", beerOrderDto.getId())));
+        }, () -> log.error(String.format("Order with ID = %s not found during updateAllocatedQty", beerOrderDto.getId())));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
         beerOrderOptional.ifPresentOrElse(beerOrder -> {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_FAILED);
-        }, () -> log.error(String.format("Order with ID = %s not found", beerOrderDto.getId())));
+        }, () -> log.error(String.format("Order with ID = %s not found during beerOrderAllocationFailed", beerOrderDto.getId())));
     }
 
     @Override
